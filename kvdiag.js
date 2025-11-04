@@ -68,10 +68,13 @@ class KvDiag {
         this.control.set.dontCare.innerText = "X";
         /* marker tools */
         this.control.mark = [];
-        this.COLOR.forEach((color) => {
+        this.colorMap = [];
+        this.COLOR.forEach((color, index) => {
             var elem = document.createElement("button");
             elem.innerText = color.name;
             this.control.mark.push(elem);
+            /* initialize color maps */
+            this.colorMap[index] = Array.from({length: 8}, () => Array(8).fill(false));
         });
         /* mode display */
         this.control.mode = {}
@@ -119,6 +122,7 @@ class KvDiag {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.fillStyle = "black";
+        ctx.beginPath();
         /* line width */
         ctx.lineWidth = 3;
         /* lines from top to bottom */
@@ -153,6 +157,108 @@ class KvDiag {
                     this.BORDER_OFFSET + (y + 0.5) * this.FIELD_SIZE + 8);
             }
         }
+        /* color marking */
+        const wrap = (i, n) => (i % n + n) % n; /* because javascript is stupid */
+        ctx.lineWidth = 2;
+        for(var colorIndex = 0; colorIndex < this.COLOR.length; colorIndex++) {
+            /* set current color */
+            ctx.strokeStyle = this.COLOR[colorIndex].color;
+            for(var x = 0; x < dims.width; x++) {
+                for(var y = 0; y < dims.height; y++) {
+                    var colorMap = this.colorMap[colorIndex];
+                    /* skip non-colored fields */
+                    if( ! colorMap[y][x]) continue; 
+                    /* pre-calculate neighbours */
+                    var has = {
+                        left:   colorMap[y][wrap(x - 1, dims.width)],
+                        right:  colorMap[y][wrap(x + 1, dims.width)],
+                        top:    colorMap[wrap(y - 1, dims.height)][x],
+                        bottom: colorMap[wrap(y + 1, dims.height)][x],
+                    }
+                    /* pre-calculate center pos */
+                    var center = {
+                        x: this.BORDER_OFFSET + (x + 0.5) * this.FIELD_SIZE, 
+                        y: this.BORDER_OFFSET + (y + 0.5) * this.FIELD_SIZE,
+                    };
+                    /* draw corners */
+                    if ( !has.left && !has.top ) {
+                        /* upper left corner */
+                        ctx.beginPath();
+                        ctx.arc(center.x, center.y, 0.48 * this.FIELD_SIZE - 2 * colorIndex, 1.0 * Math.PI, 1.5 * Math.PI);
+                        ctx.stroke();
+                    }
+                    if ( !has.top && !has.right ) {
+                        /* upper right corner */
+                        ctx.beginPath();
+                        ctx.arc(center.x, center.y, 0.48 * this.FIELD_SIZE - 2 * colorIndex, 1.5 * Math.PI, 2.0 * Math.PI);
+                        ctx.stroke();
+                    }
+                    if ( !has.right && !has.bottom ) {
+                        /* lower right corner */
+                        ctx.beginPath();
+                        ctx.arc(center.x, center.y, 0.48 * this.FIELD_SIZE - 2 * colorIndex, 0.0 * Math.PI, 0.5 * Math.PI);
+                        ctx.stroke();
+                    }
+                    if ( !has.bottom && !has.left ) {
+                        /* lower left corner */
+                        ctx.beginPath();
+                        ctx.arc(center.x, center.y, 0.48 * this.FIELD_SIZE - 2 * colorIndex, 0.5 * Math.PI, 1.0 * Math.PI);
+                        ctx.stroke();
+                    }
+                    /* draw lines */
+                    if ( !has.top && has.right ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x, center.y - (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.lineTo(center.x + 0.5 * this.FIELD_SIZE, center.y - (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.stroke();
+                    }
+                    if ( !has.bottom && has.right ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x, center.y + (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.lineTo(center.x + 0.5 * this.FIELD_SIZE, center.y + (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.stroke();
+                    }
+                    if ( !has.top && has.left ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x, center.y - (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.lineTo(center.x - 0.5 * this.FIELD_SIZE, center.y - (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.stroke();
+                    }
+                    if ( !has.bottom && has.left ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x, center.y + (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.lineTo(center.x - 0.5 * this.FIELD_SIZE, center.y + (0.48 * this.FIELD_SIZE - 2 * colorIndex));
+                        ctx.stroke();
+                    }
+
+                    if ( has.top && !has.right ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x + (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y);
+                        ctx.lineTo(center.x + (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y - 0.5 * this.FIELD_SIZE);
+                        ctx.stroke();
+                    }
+                    if ( has.bottom && !has.right ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x + (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y);
+                        ctx.lineTo(center.x + (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y + 0.5 * this.FIELD_SIZE);
+                        ctx.stroke();
+                    }
+                    if ( has.top && !has.left ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x - (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y);
+                        ctx.lineTo(center.x - (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y - 0.5 * this.FIELD_SIZE);
+                        ctx.stroke();
+                    }
+                    if ( has.bottom && !has.left ) {
+                        ctx.beginPath();
+                        ctx.moveTo(center.x - (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y);
+                        ctx.lineTo(center.x - (0.48 * this.FIELD_SIZE - 2 * colorIndex), center.y + 0.5 * this.FIELD_SIZE);
+                        ctx.stroke();
+                    }                 
+                }
+            }
+        }
+        ctx.strokeStyle = "black";
     }
 
     dimensionsFromNumOfVars(numOfVars) {
@@ -199,6 +305,10 @@ class KvDiag {
             case this.TOOL.DONTCARE:
                 this.map[field.y][field.x] = this.tool.setTo;
                 break;
+            case this.TOOL.MARK:
+                /* toggle color */
+                this.colorMap[this.colorIndex][field.y][field.x] = ! this.colorMap[this.colorIndex][field.y][field.x];
+                break;
         }
 
         /* redraw field */
@@ -207,14 +317,18 @@ class KvDiag {
 
     onToolChange(event) {
         var src = event.srcElement;
+        const isSameElement = (element) => element.isSameNode(src);
         if(this.control.set.empty.isSameNode(src)) this.tool = this.TOOL.EMPTY;
         if(this.control.set.one.isSameNode(src)) this.tool = this.TOOL.ONE;
         if(this.control.set.zero.isSameNode(src)) this.tool = this.TOOL.ZERO;
         if(this.control.set.dontCare.isSameNode(src)) this.tool = this.TOOL.DONTCARE;
 
-        if(this.control.mark.includes(src)) {
+
+        var colorIndex = this.control.mark.findIndex(isSameElement);
+        if(colorIndex !== -1) {
             /* color mode */
-            console.log("LOLOL");
+            console.log("[kvdiag.js] Color changed to: " + this.COLOR[colorIndex].name);
+            this.colorIndex = colorIndex;
             this.tool = this.TOOL.MARK;
         }
 
