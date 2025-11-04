@@ -2,6 +2,7 @@ class KvDiag {
     /* class variables */
     container;
     controls;
+    variables;
     /* fixed settings */
     BORDER_OFFSET = 80; /* px */
     FIELD_SIZE = 80; /* px */
@@ -44,7 +45,7 @@ class KvDiag {
         this.numOfVars = 2; 
         this.tool = this.TOOL.ONE;
         this.map = Array.from({length: 8}, () => Array(8).fill(this.TOOL.EMPTY.setTo));
-
+        this.variables = ["x0", "x1", "x2", "x3", "x4", "x5"]; /* todo: changeable names */
         /* create controls */
         this.control = {};
         /* num of vars */
@@ -58,7 +59,7 @@ class KvDiag {
         /* setter tools */
         this.control.set = {};
         this.control.set.empty = document.createElement("button");
-        this.control.set.empty.innerText = "_";
+        this.control.set.empty.innerText = "∅";
         this.control.set.one = document.createElement("button");
         this.control.set.one.innerText = "1";
         this.control.set.one.classList.add("active");
@@ -159,7 +160,7 @@ class KvDiag {
         }
         /* color marking */
         const wrap = (i, n) => (i % n + n) % n; /* because javascript is stupid */
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         for(var colorIndex = 0; colorIndex < this.COLOR.length; colorIndex++) {
             /* set current color */
             ctx.strokeStyle = this.COLOR[colorIndex].color;
@@ -258,7 +259,107 @@ class KvDiag {
                 }
             }
         }
+        /* variables on border */
         ctx.strokeStyle = "black";
+        ctx.font = "16px Arial";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        var offset = {x: 12, y: 4};
+        switch(dims.width) {
+            case 2:
+                /* x0 */
+                ctx.moveTo(1 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.lineTo(2 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.fillText(this.variables[0], 
+                    2 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.25 + offset.y);
+                break;
+            case 4:
+                /* x0 */
+                ctx.moveTo(1 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.lineTo(3 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.fillText(this.variables[0], 
+                    3 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.25 + offset.y);
+                /* x2 */
+                ctx.moveTo(2 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.50);
+                ctx.lineTo(4 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.50);
+                ctx.fillText(this.variables[2], 
+                    4 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.50 + offset.y);
+                break;
+            case 8:
+                /* x0 */
+                ctx.moveTo(1 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.lineTo(3 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.moveTo(5 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.lineTo(7 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.25);
+                ctx.fillText(this.variables[0], 
+                    7 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.25 + offset.y);
+                /* x2 */
+                ctx.moveTo(2 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.50);
+                ctx.lineTo(6 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.50);
+                ctx.fillText(this.variables[2], 
+                    6 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.50 + offset.y);
+                /* x4 */
+                ctx.moveTo(4 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.75);
+                ctx.lineTo(8 * this.FIELD_SIZE + this.BORDER_OFFSET, this.BORDER_OFFSET * 0.75);
+                ctx.fillText(this.variables[4], 
+                    8 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.x, 
+                    this.BORDER_OFFSET * 0.75 + offset.y);
+                break;
+        }
+        ctx.stroke();
+        var offset = {x: 0, y: 12};
+        switch(dims.height) {
+            case 2:
+                /* x1 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.25, 1 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.25, 2 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[1], 
+                    this.BORDER_OFFSET * 0.25 + offset.x,
+                    2 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                break;
+            case 4:
+                /* x1 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.25, 1 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.25, 3 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[1],
+                    this.BORDER_OFFSET * 0.25 + offset.x,
+                    3 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                /* x3 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.50, 2 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.50, 4 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[3],
+                    this.BORDER_OFFSET * 0.50 + offset.x,
+                    4 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                break;
+            case 8:
+                /* x1 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.25, 1 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.25, 3 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.moveTo(this.BORDER_OFFSET * 0.25, 5 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.25, 7 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[1],
+                    this.BORDER_OFFSET * 0.25 + offset.x,
+                    7 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                /* x3 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.50, 2 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.50, 6 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[3],
+                    this.BORDER_OFFSET * 0.50 + offset.x,
+                    6 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                /* x5 */
+                ctx.moveTo(this.BORDER_OFFSET * 0.75, 4 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.lineTo(this.BORDER_OFFSET * 0.75, 8 * this.FIELD_SIZE + this.BORDER_OFFSET);
+                ctx.fillText(this.variables[5],
+                    this.BORDER_OFFSET * 0.75 + offset.x,
+                    8 * this.FIELD_SIZE + this.BORDER_OFFSET + offset.y);
+                break;
+        }
+        ctx.stroke();
     }
 
     dimensionsFromNumOfVars(numOfVars) {
