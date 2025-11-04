@@ -2,3 +2,33 @@
     border: 3px solid black;
 }
 
+.kvdiag-controls select {
+    margin-bottom: 5px;
+}
+
+.kvdiag-controls-set {
+    margin-bottom: 5px;
+}
+
+.kvdiag-controls-mark {
+    margin-bottom: 5px;
+}
+
+.kvdiag-controls-mode {
+    margin-bottom: 5px;
+    font-style: italic;
+    color: #666;
+}
+
+.kvdiag-controls-set button {
+    background-color: white;
+    padding: 8px;
+    height: 32px;
+    width: 32px;
+}
+
+.kvdiag-controls-mark button {
+    padding: 8px;
+    height: 32px;
+    width: 32px;
+}

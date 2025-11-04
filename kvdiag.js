@@ -20,7 +20,7 @@ class KvDiag {
         EMPTY:      { name: "Inhalt löschen",   setTo: "" },
         ONE:        { name: "1 setzen",  setTo: "1" },
         ZERO:       { name: "0 setzen", setTo: "0" },
-        DONTCARE:   { name: "<i>Don't Care</i> setzen", setTo: "X" },
+        DONTCARE:   { name: "<i>Don't Care</i> setzen", setTo: "–" },
         MARK:       { name: "Markieren"},
     });
     COLOR = [
@@ -66,13 +66,14 @@ class KvDiag {
         this.control.set.zero = document.createElement("button");
         this.control.set.zero.innerText = "0";
         this.control.set.dontCare = document.createElement("button");
-        this.control.set.dontCare.innerText = "X";
+        this.control.set.dontCare.innerText = "–";
         /* marker tools */
         this.control.mark = [];
         this.colorMap = [];
         this.COLOR.forEach((color, index) => {
             var elem = document.createElement("button");
-            elem.innerText = color.name;
+            elem.innerText = "✏️";
+            elem.style.backgroundColor = color.color;
             this.control.mark.push(elem);
             /* initialize color maps */
             this.colorMap[index] = Array.from({length: 8}, () => Array(8).fill(false));
@@ -80,6 +81,7 @@ class KvDiag {
         /* mode display */
         this.control.mode = {}
         this.control.mode.container = document.createElement("span");
+        this.control.mode.container.classList.add("kvdiag-controls-mode")
         this.control.mode.label = document.createElement("span");
         this.control.mode.label.innerText = "Modus: ";
         this.control.mode.mode = document.createElement("span");
@@ -91,14 +93,21 @@ class KvDiag {
         this.control.container = document.createElement("div");
         this.control.container.classList += "kvdiag-controls";
         this.control.container.appendChild(this.control.numOfVars);
+        this.control.container_set = document.createElement("div");
+        this.control.container_set.classList.add("kvdiag-controls-set");
+        this.control.container_mark = document.createElement("div");
+        this.control.container_mark.classList.add("kvdiag-controls-mark");
         for (const btn of Object.values(this.control.set)) {
-            this.control.container.appendChild(btn);
+            this.control.container_set.appendChild(btn);
             btn.addEventListener("click", this.onToolChange.bind(this));
         }
         for (const btn of this.control.mark) {
-            this.control.container.appendChild(btn);
+            this.control.container_mark.appendChild(btn);
             btn.addEventListener("click", this.onToolChange.bind(this));
         }
+
+        this.control.container.appendChild(this.control.container_set);
+        this.control.container.appendChild(this.control.container_mark);
         this.control.container.appendChild(this.control.mode.container);
 
 
@@ -111,6 +120,25 @@ class KvDiag {
         this.canvas.classList += "kvdiag";
         this.canvas.addEventListener("click", this.onCanvasClick.bind(this));
         this.container.appendChild(this.canvas);
+
+        /* create variable naming inputs */
+        this.control.container_variables = document.createElement("div");
+        this.control.container_variables.classList.add("kvdiag-controls-variables");
+        this.control.variables = [];
+        this.variables.forEach((variable, index) => {
+            var subcontainer = document.createElement("div");
+            var label = document.createElement("span");
+            var input = document.createElement("input");
+            label.innerHTML = "Variable " + variable + ": ";
+            input.value = variable;
+            input.addEventListener("change", this.onVarNameChange.bind(this));
+            subcontainer.appendChild(label);
+            subcontainer.appendChild(input);
+            this.control.container_variables.appendChild(subcontainer);
+            this.control.variables.push(input);
+        });
+        this.container.appendChild(this.control.container_variables);
+
         /* initial rendering */
         this.updateCanvas();
     }
@@ -436,6 +464,13 @@ class KvDiag {
 
         this.control.mode.mode.innerHTML = this.tool.name; /* display current mode */
         console.log("[kvdiag.js] Tool changed.");
+    }
+
+    onVarNameChange(event) {
+        this.variables.forEach((variable, index) => {
+            this.variables[index] = this.control.variables[index].value;
+        });
+        this.updateCanvas();
     }
 
     onNumOfVarsChange(event) {
