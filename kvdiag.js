@@ -146,6 +146,8 @@ class KvDiag {
     updateCanvas() {
         var ctx = this.canvas.getContext("2d");
         var dims = this.dimensionsFromNumOfVars(this.numOfVars);
+        /* edge correction - if we don't do this, the edges are unsharp */
+        var EDGE_CORRECTION = 2;
         /* clear canvas */
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.fillStyle = "white";
@@ -156,14 +158,14 @@ class KvDiag {
         ctx.lineWidth = 3;
         /* lines from top to bottom */
         for(var x = 0; x <= dims.width; x++) {
-            ctx.moveTo(x * this.FIELD_SIZE + this.BORDER_OFFSET, 0 + this.BORDER_OFFSET);
-            ctx.lineTo(x * this.FIELD_SIZE + this.BORDER_OFFSET, dims.height * this.FIELD_SIZE + this.BORDER_OFFSET);
+            ctx.moveTo(x * this.FIELD_SIZE + this.BORDER_OFFSET, 0 + this.BORDER_OFFSET - EDGE_CORRECTION);
+            ctx.lineTo(x * this.FIELD_SIZE + this.BORDER_OFFSET, dims.height * this.FIELD_SIZE + this.BORDER_OFFSET + EDGE_CORRECTION);
             ctx.stroke();
         }
         /* lines from left to right */
         for(var y = 0; y <= dims.height; y++) {
-            ctx.moveTo(0 + this.BORDER_OFFSET, y * this.FIELD_SIZE + this.BORDER_OFFSET);
-            ctx.lineTo(dims.width * this.FIELD_SIZE + this.BORDER_OFFSET, y * this.FIELD_SIZE + this.BORDER_OFFSET);
+            ctx.moveTo(0 + this.BORDER_OFFSET - EDGE_CORRECTION, y * this.FIELD_SIZE + this.BORDER_OFFSET);
+            ctx.lineTo(dims.width * this.FIELD_SIZE + this.BORDER_OFFSET + EDGE_CORRECTION, y * this.FIELD_SIZE + this.BORDER_OFFSET);
             ctx.stroke();
         }
         /* field numbering */
