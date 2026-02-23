@@ -106,8 +106,21 @@ class KvDiag {
             btn.addEventListener("click", this.onToolChange.bind(this));
         }
 
+        /* add clean utils buttons */
+        this.control.utils = document.createElement("div");
+        this.control.utils.classList += "kvdiag-controls-utils";
+        var btn = document.createElement("button");
+        btn.textContent = "Werte löschen";
+        btn.addEventListener("click", this.clearSetMap.bind(this));
+        this.control.utils.appendChild(btn);
+        var btn = document.createElement("button");
+        btn.textContent = "Markierungen löschen";
+        btn.addEventListener("click", this.clearMarkMap.bind(this));
+        this.control.utils.appendChild(btn);
+
         this.control.container.appendChild(this.control.container_set);
         this.control.container.appendChild(this.control.container_mark);
+        this.control.container.appendChild(this.control.utils);
         this.control.container.appendChild(this.control.mode.container);
 
 
@@ -482,6 +495,20 @@ class KvDiag {
         this.canvas.height = this.canvasSizeFromNumOfVars(newNumOfVars).height;
         this.numOfVars = newNumOfVars;
         /* redraw */
+        this.updateCanvas();
+    }
+
+    /* cleanup helper functions */
+
+    clearSetMap() {
+        this.map = Array.from({length: 8}, () => Array(8).fill(this.TOOL.EMPTY.setTo));
+        this.updateCanvas();
+    }
+
+    clearMarkMap() {
+        this.COLOR.forEach((color, index) => {
+            this.colorMap[index] = Array.from({length: 8}, () => Array(8).fill(false));
+        });
         this.updateCanvas();
     }
 }
