@@ -152,6 +152,13 @@ class KvDiag {
         });
         this.container.appendChild(this.control.container_variables);
 
+        /* copy to clipboard button */
+        var btn = document.createElement("button");
+        btn.textContent = "Diagramm in Zwischenablage kopieren";
+        btn.classList.add("btn", "btn-primary", "w-100");
+        btn.addEventListener("click", this.onCopyImageClick.bind(this));
+        this.container.appendChild(btn);
+
         /* initial rendering */
         this.updateCanvas();
     }
@@ -496,6 +503,13 @@ class KvDiag {
         this.numOfVars = newNumOfVars;
         /* redraw */
         this.updateCanvas();
+    }
+
+    onCopyImageClick() {
+        this.canvas.toBlob(function(blob) { 
+            const item = new ClipboardItem({ "image/png": blob });
+            navigator.clipboard.write([item]); 
+        });
     }
 
     /* cleanup helper functions */
