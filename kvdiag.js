@@ -433,7 +433,14 @@ class KvDiag {
     }
 
     onCanvasClick(event) {
-        var click = {x: event.offsetX, y: event.offsetY};
+        /* calculate scale-aware position */
+        var rect = this.canvas.getBoundingClientRect();
+        var cssX = event.clientX - rect.left;
+        var cssY = event.clientY - rect.top;
+        var scaleX = this.canvas.width  / rect.width;
+        var scaleY = this.canvas.height / rect.height;
+        /* normal click handling */
+        var click = {x: cssX * scaleX, y: cssY * scaleY};
         var dims = this.dimensionsFromNumOfVars(this.numOfVars);
         console.log(`[kvdiag.js] click at (${click.x}|${click.y})`);
         /* translate screen coordinates to field coordinates */
