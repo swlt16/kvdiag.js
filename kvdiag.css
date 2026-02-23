@@ -1,34 +1,87 @@
+/* Canvas */
 .kvdiag {
-    border: 3px solid black;
+  display: block;
+  margin: 0 auto .75rem;
+  max-width: 100%;
+  height: auto;
+
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: .5rem;
+  background: var(--bs-body-bg, #fff);
 }
 
-.kvdiag-controls select {
-    margin-bottom: 5px;
+/* Controls */
+.kvdiag-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .5rem;
 }
 
-.kvdiag-controls-set {
-    margin-bottom: 5px;
+/* Select + Inputs */
+.kvdiag-controls select,
+.kvdiag-controls-variables input {
+  padding: .375rem .5rem;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: .375rem;
+  background: var(--bs-body-bg, #fff);
 }
 
+/* Button groups */
+.kvdiag-controls-set,
 .kvdiag-controls-mark {
-    margin-bottom: 5px;
+  display: inline-flex;
 }
 
-.kvdiag-controls-mode {
-    margin-bottom: 5px;
-    font-style: italic;
-    color: #666;
-}
-
-.kvdiag-controls-set button {
-    background-color: white;
-    padding: 8px;
-    height: 32px;
-    width: 32px;
-}
-
+.kvdiag-controls-set button,
 .kvdiag-controls-mark button {
-    padding: 8px;
-    height: 32px;
-    width: 32px;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  background: #fff;
+  cursor: pointer;
+}
+
+.kvdiag-controls-set button + button,
+.kvdiag-controls-mark button + button {
+  margin-left: -1px;
+}
+
+.kvdiag-controls-set button:first-child,
+.kvdiag-controls-mark button:first-child {
+    border-top-left-radius: .375rem;
+    border-bottom-left-radius: .375rem;
+}
+.kvdiag-controls-set button:last-child,
+.kvdiag-controls-mark button:last-child {
+    border-top-right-radius: .375rem;
+    border-bottom-right-radius: .375rem;
+}
+
+/* Mode text */
+.kvdiag-controls-mode {
+  margin-left: auto;
+  font-style: italic;
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+/* Variables */
+.kvdiag-controls-variables {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+@media (min-width: 576px) {
+  .kvdiag-controls-variables {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kvdiag-controls-variables > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .5rem;
+  align-items: center;
 }
