@@ -1,4 +1,6 @@
 class KvDiag {
+    /* DEBUG TODO REMOVE */
+    path = [9, 11, 15, 7];
     /* class variables */
     container;
     controls;
@@ -20,7 +22,7 @@ class KvDiag {
         EMPTY:      { name: "Inhalt löschen",   setTo: "" },
         ONE:        { name: "1 setzen",  setTo: "1" },
         ZERO:       { name: "0 setzen", setTo: "0" },
-        DONTCARE:   { name: "<i>Don't Care</i> setzen", setTo: "–" },
+        DONTCARE:   { name: "<i>Don't Care</i>", setTo: "–" },
         MARK:       { name: "Markieren"},
     });
     COLOR = [
@@ -410,6 +412,67 @@ class KvDiag {
                 break;
         }
         ctx.stroke();
+
+        /* hazard arrows */
+
+        /* translate path to single arrows */
+        var arrows = this.path.slice(0, -1).map((v, i) => ({
+            from: v,
+            to: this.path[i + 1]
+        }));
+        ctx.strokeStyle = "grey";
+        ctx.beginPath();
+        for(var arrow of arrows) {
+            var from = this.fieldToCoord(arrow.from);
+            var to = this.fieldToCoord(arrow.to);
+            /* skip if outside of current board */
+            if(from.x >= dims.width || to.x >= dims.width 
+                    || from.y >= dims.height || to.y >= dims.height) {
+                continue;
+            }
+            /* core coordinates */
+            from = {
+                x: this.BORDER_OFFSET + (from.x + 0.5) * this.FIELD_SIZE, 
+                y: this.BORDER_OFFSET + (from.y + 0.5) * this.FIELD_SIZE,
+            };
+            to = {
+                x: this.BORDER_OFFSET + (to.x + 0.5) * this.FIELD_SIZE, 
+                y: this.BORDER_OFFSET + (to.y + 0.5) * this.FIELD_SIZE,
+            };
+            /* we need space from the center of a field */
+            if(from.x == to.x) {
+                /* vertical arrow */
+                from.y += (from.y > to.y ? -0.2 : +0.2) * this.FIELD_SIZE;
+                to.y   += (from.y > to.y ? +0.2 : -0.2) * this.FIELD_SIZE;
+            } else {
+                /* horizontal arrow */
+                from.x += (from.x > to.x ? -0.2 : +0.2) * this.FIELD_SIZE;
+                to.x   += (from.x > to.x ? +0.2 : -0.2) * this.FIELD_SIZE;
+            }
+            this.drawArrow(ctx, from.x, from.y, to.x, to.y);
+        }
+        ctx.stroke();
+        /* reset style */
+        ctx.strokeStyle = "black";
+    }
+
+    drawArrow(ctx, x1, y1, x2, y2, headLen = 10) {
+        var dx = x2 - x1, dy = y2 - y1;
+        var angle = Math.atan2(dy, dx);
+        /* core line */
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        /* cap lines */
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(
+            x2 - headLen * Math.cos(angle - Math.PI / 6),
+            y2 - headLen * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(
+            x2 - headLen * Math.cos(angle + Math.PI / 6),
+            y2 - headLen * Math.sin(angle + Math.PI / 6)
+        );
     }
 
     dimensionsFromNumOfVars(numOfVars) {
@@ -517,6 +580,13 @@ class KvDiag {
             const item = new ClipboardItem({ "image/png": blob });
             navigator.clipboard.write([item]); 
         });
+    }
+
+    /* hazard arrows */
+    fieldToCoord(field) {
+        var y = this.FIELD_MAP.findIndex(row => row.includes(field));
+        var x = y !== -1 ? this.FIELD_MAP[y].indexOf(field) : -1;
+        return {x: x, y: y};
     }
 
     /* cleanup helper functions */
